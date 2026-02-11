@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "module": "esnext",
+    "target": "es2023",
+    "moduleResolution": "bundler"
+  }
+}

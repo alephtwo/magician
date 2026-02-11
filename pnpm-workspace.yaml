@@ -1,0 +1,4 @@
+---
+publicHoistPattern:
+  - "rollup"
+  - "@stryker-mutator/api"
