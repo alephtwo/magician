@@ -11,7 +11,7 @@ export class Deck<T> {
    * @param cards The cards to initialize the deck with. Defaults to an empty array.
    */
   constructor(cards: T[] = []) {
-    this.#cards = cards;
+    this.#cards = [...cards];
   }
 
   /**
@@ -41,6 +41,8 @@ export class Deck<T> {
    * The cards are removed from the deck.
    * If the count is greater than the number of cards in the deck, all remaining
    * cards will be drawn.
+   * The cards will be returned in the order that they would be if each was drawn
+   * one-by-one from the deck.
    * @param count The number of cards to draw from the deck.
    * @returns An array of the drawn cards. The array may be shorter than the
    *          requested count if the deck does not contain enough cards.
@@ -50,9 +52,9 @@ export class Deck<T> {
     if (count < 0) {
       throw new Error("Count must be non-negative");
     }
-    return Array.from({ length: count }, () => this.draw()).filter(
-      (c) => c !== null,
-    );
+
+    const start = Math.max(0, this.#cards.length - count);
+    return this.#cards.splice(start, count).toReversed();
   }
 
   /**
@@ -69,6 +71,7 @@ export class Deck<T> {
   /**
    * Peeks at a specified number of cards from the top of the deck without removing them.
    * If the count is greater than the number of cards in the deck, all cards will be returned.
+   * The cards will be returned in the order they appear in the deck.
    * @param count The number of cards to peek at from the deck.
    * @returns An array of the cards from the top of the deck. The array may be shorter than the
    *          requested count if the deck does not contain enough cards.
@@ -77,6 +80,9 @@ export class Deck<T> {
   peekMany(count: number): T[] {
     if (count < 0) {
       throw new Error("Count must be non-negative");
+    }
+    if (count === 0) {
+      return [];
     }
     return this.#cards.slice(-count);
   }
@@ -130,15 +136,5 @@ export class Deck<T> {
    */
   toList(): T[] {
     return [...this.#cards];
-  }
-
-  /**
-   * Makes the deck iterable, drawing cards one by one from the top until empty.
-   * Each iteration removes a card from the deck.
-   */
-  *[Symbol.iterator](): IterableIterator<T> {
-    for (let i = this.#cards.length; i > 0; i--) {
-      yield this.draw();
-    }
   }
 }
