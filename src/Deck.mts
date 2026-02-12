@@ -1,3 +1,5 @@
+import { Predicate } from "./@types/Predicate";
+
 /**
  * A Deck is a collection of items that can be shuffled and drawn from.
  * Items are always drawn from the "top" of the deck in a defined order, but the
@@ -58,6 +60,56 @@ export class Deck<T> {
   }
 
   /**
+   * Pull a single card that matches the given predicate from the deck.
+   * The card will be drawn from as close to the top of the deck as possible.
+   * If no cards match, null will be returned.
+   * @param predicate The predicate by which to select a card.
+   * @returns The card that matches the predicate.
+   */
+  pull(predicate: Predicate<T>): T | null {
+    const index = this.#cards.findLastIndex(predicate);
+    if (index === -1) {
+      return null;
+    }
+
+    const [card] = this.#cards.splice(index, 1);
+    return card;
+  }
+
+  /**
+   * Pull cards from the deck that match the given predicate.
+   * The cards will be drawn from as close to the top of the deck as possible.
+   * The list may be shorter if there are not enough cards to match.
+   * @param predicate
+   */
+  pullMany(count: number, predicate: Predicate<T>): T[] {
+    if (count < 0) {
+      throw new Error("Count must be non-negative.");
+    }
+    return Array.from({ length: count }, () => this.pull(predicate)).filter(
+      (c) => c != null,
+    );
+  }
+
+  /**
+   * Pull all cards that match the given predicate from the deck.
+   * @param predicate The predicate by which to select cards.
+   * @returns The list of all cards that match the predicate.
+   */
+  pullAll(predicate: Predicate<T>): T[] {
+    if (this.#cards.length === 0) {
+      return [];
+    }
+
+    const { matching, remaining } = Object.groupBy(this.#cards, (c, _i) =>
+      predicate(c) ? "matching" : "remaining",
+    );
+    this.#cards = remaining;
+
+    return matching.toReversed();
+  }
+
+  /**
    * Peeks at the top card without removing it from the deck.
    * @returns The top card, or null if the deck is empty.
    */
@@ -109,7 +161,7 @@ export class Deck<T> {
    * Removes cards from the deck that match the given predicate.
    * @param predicate A function that takes a card and returns true if the card should be removed, false otherwise.
    */
-  remove(predicate: (card: T) => boolean): void {
+  remove(predicate: Predicate<T>): void {
     this.#cards = this.#cards.filter((card) => !predicate(card));
   }
 

@@ -165,6 +165,63 @@ describe("drawMany", () => {
   });
 });
 
+describe("pull", () => {
+  test("returns null for an empty deck", () => {
+    const deck = new Deck();
+    expect(deck.pull(() => true)).toEqual(null);
+  });
+
+  test("draws first card that matches the predicate", () => {
+    const deck = new Deck([1, 2, 3, 4, 5]);
+    const card = deck.pull((c) => c % 2 === 0);
+
+    expect(deck.toList()).toEqual([1, 2, 3, 5]);
+    expect(card).toEqual(4);
+  });
+});
+
+describe("pullMany", () => {
+  test("returns empty list for an empty deck", () => {
+    const deck = new Deck();
+    expect(deck.pullMany(2, () => true)).toEqual([]);
+  });
+
+  test("draws empty list for count = 0", () => {
+    const deck = new Deck();
+    expect(deck.pullMany(0, () => true)).toEqual([]);
+  });
+
+  test("draws first cards that match a predicate", () => {
+    const deck = new Deck([1, 2, 3, 4, 5, 6, 7]);
+    const cards = deck.pullMany(2, (c) => c % 2 === 0);
+
+    expect(deck.toList()).toEqual([1, 2, 3, 5, 7]);
+    expect(cards).toEqual([6, 4]);
+  });
+
+  test("throws error on count < 0", () => {
+    const deck = new Deck();
+    expect(() => deck.pullMany(-1, () => true)).toThrowError(
+      "Count must be non-negative.",
+    );
+  });
+});
+
+describe("pullAll", () => {
+  test("pulls empty list if no cards in deck", () => {
+    const deck = new Deck();
+    expect(deck.pullAll(() => true)).toEqual([]);
+  });
+
+  test("pulls all cards that match a predicate from the deck", () => {
+    const deck = new Deck([1, 2, 3, 4, 5, 6, 7, 8]);
+    const pulled = deck.pullAll((c) => c % 2 === 0);
+
+    expect(pulled).toEqual([8, 6, 4, 2]);
+    expect(deck.toList()).toEqual([1, 3, 5, 7]);
+  });
+});
+
 describe("peek", () => {
   test("returns null when there are no cards in the deck", () => {
     const deck = new Deck();
