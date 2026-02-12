@@ -174,6 +174,13 @@ export class Deck<T> {
   }
 
   /**
+   * Removes all cards from the deck.
+   */
+  clear(): void {
+    this.#cards = [];
+  }
+
+  /**
    * Returns the number of cards currently in the deck.
    * @returns The number of cards in the deck.
    */

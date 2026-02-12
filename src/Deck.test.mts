@@ -348,6 +348,14 @@ describe("isEmpty", () => {
   });
 });
 
+describe("clear", () => {
+  test("removes all cards from the deck", () => {
+    const deck = new Deck([1, 2, 3]);
+    deck.clear();
+    expect(deck.toList()).toEqual([]);
+  });
+});
+
 describe("size", () => {
   test("properly determines size of deck", () => {
     fc.assert(
